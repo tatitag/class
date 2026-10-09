@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Буква Ы</title>
+<style>
+  :root {
+    --paper: #fdfcf7;
+    --grid: #d5e3f3;
+    --ink: #1d2540;
+    --soft: #5b6480;
+    --blue: #2b55e0;
+    --red: #e5484d;
+    --green: #23a05a;
+    --yellow: #ffc93c;
+    --bg: #eef3fb;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  header { padding: 14px 16px 6px; display: flex; justify-content: center; }
+  .dots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .dots button {
+    width: 18px; height: 18px; border-radius: 50%; border: 3px solid #b9c6de;
+    background: #fff; padding: 0; cursor: pointer; transition: transform .15s;
+  }
+  .dots button.done { background: var(--blue); border-color: var(--blue); }
+  .dots button.now { background: var(--yellow); border-color: var(--ink); transform: scale(1.35); }
+
+  main { flex: 1; overflow-y: auto; padding: 8px 16px 16px; }
+  section { display: none; max-width: 820px; margin: 0 auto; text-align: center; }
+  section.on { display: block; animation: appear .35s ease-out; }
+  @keyframes appear { from { opacity: 0; transform: translateY(10px); } }
+
+  h1 { font-size: clamp(30px, 5.2vw, 52px); margin: 6px 0 8px; line-height: 1.1; }
+  h1 small { display: block; font-size: .45em; color: var(--soft); font-weight: 600; margin-bottom: 4px; }
+  p { font-size: clamp(21px, 3vw, 30px); line-height: 1.35; margin: 8px auto; max-width: 22em; }
+  p.task {
+    display: inline-block; background: #fff4cf; border-radius: 16px; padding: 8px 18px;
+    font-size: clamp(18px, 2.4vw, 24px);
+  }
+  p.note { font-size: clamp(17px, 2.1vw, 22px); color: var(--soft); max-width: 30em; }
+  b.r, .word i { color: var(--red); font-style: normal; }
+  b.k { color: var(--blue); }
+
+  .paper {
+    max-width: 720px; margin: 12px auto; border-radius: 18px; padding: 16px;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, var(--grid) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+    box-shadow: 0 2px 0 #c9d6ea, 0 10px 24px rgba(40, 70, 140, .12);
+  }
+
+  .btn {
+    font: inherit; font-weight: 700; font-size: clamp(18px, 2.4vw, 24px);
+    border: 0; border-radius: 16px; padding: 12px 22px; margin: 4px; cursor: pointer;
+    background: #fff; color: var(--ink); box-shadow: 0 3px 0 #c3cfe4;
+  }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c3cfe4; }
+  .btn.main { background: var(--blue); color: #fff; box-shadow: 0 3px 0 #1a3aa8; }
+
+  /* 0. буква */
+  .letter { font-size: clamp(120px, 24vw, 210px); font-weight: 800; line-height: 1; color: var(--red); letter-spacing: .08em; }
+  .letter span { font-size: .7em; }
+
+  /* 1. где живёт Ы */
+  .places { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 720px; margin: 14px auto; }
+  .place { background: var(--card); border-radius: 18px; padding: 12px 6px; box-shadow: 0 3px 0 #c3cfe4; }
+  .place h2 { margin: 0 0 6px; font-size: clamp(17px, 2.3vw, 24px); color: var(--soft); }
+  .place.no { background: #f3f4f8; box-shadow: none; }
+  .place .mark { font-size: clamp(34px, 6vw, 54px); line-height: 1.1; }
+  .word { font-size: clamp(24px, 3.8vw, 38px); font-weight: 700; line-height: 1.3; letter-spacing: .04em; }
+
+  /* 2. один — много */
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 760px; margin: 14px auto; }
+  @media (max-width: 600px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  .card {
+    font: inherit; color: var(--ink); border: 0; cursor: pointer; background: var(--card); border-radius: 18px;
+    padding: 12px 4px 14px; box-shadow: 0 3px 0 #c3cfe4; min-height: 150px;
+  }
+  .card .pic { font-size: clamp(34px, 5.5vw, 50px); min-height: 1.4em; line-height: 1.3; }
+  .card.many { background: #fff4cf; }
+  .card.many .pic { font-size: clamp(22px, 3.6vw, 32px); min-height: 2.2em; }
+
+  /* 3. схемы */
+  .schemes { display: grid; grid-template-columns: repeat(3, auto); justify-content: space-around; gap: 10px; }
+  @media (max-width: 600px) { .schemes { grid-template-columns: 1fr; } }
+  .scheme .pic { font-size: clamp(40px, 6vw, 58px); line-height: 1.1; }
+  .scheme svg { display: block; margin: 6px auto 0; height: clamp(58px, 9vw, 78px); width: auto; }
+  .scheme svg .part { fill: #fff; stroke: var(--ink); stroke-width: 2.5; cursor: pointer; stroke-linejoin: round; }
+  .scheme svg text { font-family: inherit; font-weight: 700; font-size: 22px; fill: var(--ink); pointer-events: none; text-anchor: middle; }
+  .scheme svg .part.r { fill: #f7a3a6; } .scheme svg .part.b { fill: #a9bdf7; } .scheme svg .part.g { fill: #9fdcb8; }
+  .scheme svg .part.bad { animation: flash .4s; }
+  @keyframes flash { 50% { fill: #ddd; } }
+  .palette { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 8px 0; }
+  .palette .btn { display: flex; align-items: center; gap: 8px; font-size: clamp(16px, 2.1vw, 21px); padding: 10px 16px; margin: 0; }
+  .palette .btn::before { content: ""; width: 24px; height: 24px; border-radius: 50%; background: var(--c); border: 2px solid var(--ink); }
+  .palette .btn.sel { outline: 4px solid var(--ink); }
+
+  /* 4. найди Ы */
+  .field { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; padding: 10px; }
+  .field button {
+    font: inherit; font-weight: 800; font-size: clamp(26px, 5.4vw, 46px); line-height: 1.25; color: var(--ink);
+    background: none; border: 0; border-radius: 50%; aspect-ratio: 1; cursor: pointer; padding: 0;
+    transform: rotate(var(--a));
+  }
+  .field button.hit { background: #c9f0d8; box-shadow: inset 0 0 0 4px var(--green); color: var(--red); }
+  .field button.miss { animation: shake .35s; opacity: .3; }
+  @keyframes shake { 25% { translate: -6px 0; } 75% { translate: 6px 0; } }
+
+  /* 5. середина слова */
+  .card .word { display: block; margin-top: 4px; }
+  .card.yes { background: #c9f0d8; box-shadow: 0 3px 0 var(--green); }
+  .card.nope { animation: shake .35s; opacity: .55; }
+  .three { grid-template-columns: repeat(3, 1fr) !important; max-width: 640px; }
+
+  .rules { max-width: 640px; margin: 12px auto; display: grid; gap: 10px; text-align: left; }
+  .rules div { background: var(--card); border-radius: 18px; padding: 12px 18px; font-size: clamp(19px, 2.7vw, 27px); border-left: 8px solid var(--yellow); line-height: 1.3; }
+
+  footer {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -2px 12px rgba(40, 70, 140, .1);
+  }
+  footer .btn { margin: 0; }
+  footer .btn.main { padding-left: 34px; padding-right: 34px; }
+  /* телефон */
+  body, button { touch-action: manipulation; }
+  @media (max-width: 560px) {
+    header { padding: 10px 12px 4px; }
+    .dots { gap: 6px; }
+    .dots button { width: 15px; height: 15px; border-width: 2px; }
+    main { padding: 6px 14px 14px; }
+    h1 { font-size: 30px; }
+    p { font-size: 20px; }
+    p.task { font-size: 17px; padding: 8px 14px; }
+    .paper { margin: 10px auto; border-radius: 14px; }
+    footer { padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); }
+    footer .btn { min-height: 52px; padding: 10px 16px; font-size: 20px; }
+    footer .btn.main { flex: 1; max-width: 220px; }
+    .letter { font-size: 150px; }
+    /* где живёт Ы: «в начале» — узкая полоска сверху, середина и конец рядом */
+    .places { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .place.no { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px; }
+    .place.no h2 { margin: 0; }
+    .place.no .mark { font-size: 28px; }
+    .place.no .word { font-size: 20px; }
+    .word { font-size: 27px; }
+    .card { min-height: 0; padding: 10px 4px 12px; }
+    /* схемы: слово слева, схема справа — три слова и палитра видны без прокрутки */
+    .paper { padding: 10px 12px; }
+    .schemes { gap: 4px; }
+    .scheme { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; text-align: left; }
+    .scheme .pic { font-size: 26px; white-space: nowrap; letter-spacing: -8px; }
+    .scheme .word { font-size: 23px; }
+    .scheme svg { height: 60px; margin: 4px 0; }
+    .palette { gap: 6px; }
+    .palette .btn { font-size: 16px; padding: 10px 12px; }
+    /* найди Ы: 6 букв в ряд вместо 8 — крупнее для пальца */
+    .field { grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 0; }
+    .field button { font-size: 34px; }
+    .three { gap: 8px; }
+    .three .pic { font-size: 30px; letter-spacing: -6px; }
+    .three .word { font-size: 19px; letter-spacing: 0; }
+    .rules div { font-size: 19px; padding: 10px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { section.on, .miss, .nope, .bad { animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header><div class="dots" id="dots"></div></header>
+
+<main id="main">
+
+  <!-- 0. Знакомство -->
+  <section>
+    <h1><small>Урок чтения</small>Буква Ы</h1>
+    <div class="letter">Ы<span>ы</span></div>
+    <p>Звук <b class="r">[ы]</b> — <b class="r">гласный</b>.<br>Его можно тянуть: ы-ы-ы-ы…</p>
+    <p class="note">Гласные звуки на схемах красим красным.</p>
+  </section>
+
+  <!-- 1. Где живёт Ы -->
+  <section>
+    <h1>Где живёт буква Ы</h1>
+    <p>С буквы Ы слова <b class="r">не начинаются</b>.</p>
+    <div class="places">
+      <div class="place no"><h2>В начале</h2><div class="mark">🚫</div><div class="word" style="color:#9aa3b8">нет слов</div></div>
+      <div class="place"><h2>В середине</h2><div class="word">с<i>ы</i>р<br>д<i>ы</i>м<br>р<i>ы</i>ба</div></div>
+      <div class="place"><h2>В конце</h2><div class="word">гриб<i>ы</i><br>шар<i>ы</i><br>кот<i>ы</i></div></div>
+    </div>
+  </section>
+
+  <!-- 2. Один — много -->
+  <section>
+    <h1>Один — много</h1>
+    <p>Буква Ы делает из одного <b class="k">много</b>.</p>
+    <div class="cards" id="many"></div>
+    <p class="task">👆 Нажимай на картинки</p>
+  </section>
+
+  <!-- 3. Схемы слов (задание 1 с листа) -->
+  <section>
+    <h1><small>Задание 1</small>Раскрась схемы слов</h1>
+    <div class="paper"><div class="schemes" id="schemes"></div></div>
+    <div class="palette" id="palette">
+      <button class="btn sel" data-c="r" style="--c:#f7a3a6">гласный</button>
+      <button class="btn" data-c="b" style="--c:#a9bdf7">твёрдый согласный</button>
+      <button class="btn" data-c="g" style="--c:#9fdcb8">мягкий согласный</button>
+    </div>
+    <p class="task" id="schemeHint">🎨 Выбери цвет и нажимай на клеточки</p>
+  </section>
+
+  <!-- 4. Найди Ы (задание 2 с листа) -->
+  <section>
+    <h1><small>Задание 2</small>Найди спрятанные Ы</h1>
+    <div class="paper"><div class="field" id="field"></div></div>
+    <p class="task" id="fieldHint"></p>
+    <div><button class="btn" id="fieldReset">Перемешать</button></div>
+  </section>
+
+  <!-- 5. Ы в середине слова (задание 3 с листа) -->
+  <section>
+    <h1><small>Задание 3</small><span id="midTitle">Где [ы] в середине слова?</span></h1>
+    <div class="cards three" id="mid"></div>
+    <p class="task" id="midHint">👆 Нажми на такие слова — их два</p>
+  </section>
+
+  <!-- 6. Запомни -->
+  <section>
+    <h1>Запомни</h1>
+    <div class="rules">
+      <div>Буква Ы — <b class="r">гласный</b> звук [ы].</div>
+      <div>С буквы Ы слова <b class="r">не начинаются</b>.</div>
+      <div>Согласный перед Ы звучит <b class="k">твёрдо</b>: с<b class="r">ы</b>р, д<b class="r">ы</b>м.</div>
+      <div>Ы делает из одного <b class="k">много</b>: шар — шар<b class="r">ы</b>.</div>
+    </div>
+    <p>⭐ Урок пройден!</p>
+  </section>
+
+</main>
+
+<footer>
+  <button class="btn" id="prev">← Назад</button>
+  <button class="btn main" id="next">Дальше →</button>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ---------- навигация ---------- */
+const pages = [...document.querySelectorAll('main section')];
+const dots = $('dots');
+let cur = 0;
+pages.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.setAttribute('aria-label', 'Страница ' + (i + 1));
+  b.onclick = () => go(i);
+  dots.appendChild(b);
+});
+function go(i) {
+  cur = Math.max(0, Math.min(pages.length - 1, i));
+  pages.forEach((p, n) => p.classList.toggle('on', n === cur));
+  [...dots.children].forEach((d, n) => { d.className = n < cur ? 'done' : n === cur ? 'now' : ''; });
+  $('prev').style.visibility = cur ? 'visible' : 'hidden';
+  $('next').style.visibility = cur < pages.length - 1 ? 'visible' : 'hidden';
+  $('main').scrollTop = 0;
+  history.replaceState(null, '', '#' + cur);
+}
+$('prev').onclick = () => go(cur - 1);
+$('next').onclick = () => go(cur + 1);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(cur + 1);
+  if (e.key === 'ArrowLeft') go(cur - 1);
+});
+
+/* ---------- 2. один — много ---------- */
+[['🎈', 'шар'], ['🐱', 'кот'], ['🐘', 'слон'], ['🍄', 'гриб']].forEach(([pic, w]) => {
+  const b = document.createElement('button'); b.className = 'card';
+  let many = false;
+  const draw = () => {
+    b.classList.toggle('many', many);
+    b.innerHTML = '<div class="pic">' + (many ? (pic + pic + pic + '<br>' + pic + pic) : pic) + '</div><span class="word">' + w + (many ? '<i>ы</i>' : '') + '</span>';
+  };
+  b.onclick = () => { many = !many; draw(); };
+  draw(); $('many').appendChild(b);
+});
+
+/* ---------- 3. схемы слов ----------
+   m — слияние согласного с гласным (клетка с косой чертой), c — отдельный согласный.
+   r — гласный, b — твёрдый согласный, g — мягкий согласный. */
+const SCHEMES = [
+  { pic: '🦒', w: 'жираф', cells: [{ m: [['ж', 'b'], ['ы', 'r']] }, { m: [['р', 'b'], ['а', 'r']] }, { c: ['ф', 'b'] }] },
+  { pic: '🧀', w: 'сыр',   cells: [{ m: [['с', 'b'], ['ы', 'r']] }, { c: ['р', 'b'] }] },
+  { pic: '🍄🍄', w: 'грибы', cells: [{ c: ['г', 'b'] }, { m: [['р’', 'g'], ['и', 'r']] }, { m: [['б', 'b'], ['ы', 'r']] }] },
+];
+let color = 'r', left = 0;
+$('palette').querySelectorAll('button').forEach(b => b.onclick = () => {
+  color = b.dataset.c;
+  $('palette').querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
+});
+SCHEMES.forEach(s => {
+  const K = 64, n = s.cells.length;
+  let h = '';
+  s.cells.forEach((c, i) => {
+    const x = 2 + i * K, y = 2;
+    if (c.m) {
+      h += `<polygon class="part" data-a="${c.m[0][1]}" points="${x},${y} ${x},${y + K} ${x + K},${y + K}"/><text x="${x + 19}" y="${y + 52}">${c.m[0][0]}</text>`;
+      h += `<polygon class="part" data-a="${c.m[1][1]}" points="${x},${y} ${x + K},${y} ${x + K},${y + K}"/><text x="${x + 45}" y="${y + 26}">${c.m[1][0]}</text>`;
+    } else {
+      h += `<rect class="part" data-a="${c.c[1]}" x="${x}" y="${y}" width="${K}" height="${K}"/><text x="${x + K / 2}" y="${y + 40}">${c.c[0]}</text>`;
+    }
+  });
+  const d = document.createElement('div'); d.className = 'scheme';
+  d.innerHTML = `<div class="pic">${s.pic}</div><div class="word">${s.w}</div><svg viewBox="0 0 ${n * K + 4} ${K + 4}">${h}</svg>`;
+  $('schemes').appendChild(d);
+});
+const parts = [...document.querySelectorAll('.scheme .part')];
+left = parts.length;
+parts.forEach(p => p.addEventListener('pointerdown', () => {
+  if (p.dataset.ok) return;
+  if (p.dataset.a === color) {
+    p.classList.add(color); p.dataset.ok = 1; left--;
+    $('schemeHint').textContent = left ? '🎨 Осталось клеточек: ' + left
+      : '👍 Готово! Хитрость: в слове ЖИРАФ пишем И, а слышим [ы].';
+  } else {
+    p.classList.remove('bad'); void p.getBoundingClientRect(); p.classList.add('bad');
+    $('schemeHint').textContent = 'Послушай звук ещё раз и выбери другой цвет';
+  }
+}));
+
+/* ---------- 4. найди Ы ---------- */
+const FAKE = 'ЬЪБВРНЬЪБЯЮЬВРНЪБЬ';
+function fieldNew() {
+  const N = 24, HID = 6, f = $('field');
+  const cells = [...Array(N)].map((_, i) => i < HID ? 'Ы' : FAKE[(i + Math.floor(Math.random() * FAKE.length)) % FAKE.length]);
+  for (let i = N - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  let found = 0;
+  const hint = () => $('fieldHint').textContent = found === HID ? '👍 Все ' + HID + ' букв Ы найдены!' : '🔍 Найдено: ' + found + ' из ' + HID;
+  f.innerHTML = '';
+  cells.forEach(ch => {
+    const b = document.createElement('button'); b.textContent = ch;
+    b.style.setProperty('--a', Math.round(Math.random() * 50 - 25) + 'deg');
+    b.onclick = () => {
+      if (b.className) return;
+      if (ch === 'Ы') { b.className = 'hit'; found++; hint(); } else b.className = 'miss';
+    };
+    f.appendChild(b);
+  });
+  hint();
+}
+$('fieldReset').onclick = fieldNew;
+fieldNew();
+
+/* ---------- 5. Ы в середине слова, потом — овощ ---------- */
+const MID = [
+  { pic: '🐝🐝🐝', w: 'пчёлы', mid: false },
+  { pic: '🍼', w: 'бутылка', mid: true },
+  { pic: '🎃', w: 'тыква', mid: true, veg: true },
+];
+let step = 1, got = 0;
+MID.forEach(t => {
+  const b = document.createElement('button'); b.className = 'card';
+  b.innerHTML = '<div class="pic">' + t.pic + '</div><span class="word">' + t.w + '</span>';
+  b.onclick = () => {
+    if (step === 1) {
+      if (b.classList.contains('yes')) return;
+      if (t.mid) {
+        b.classList.add('yes'); got++;
+        if (got === 2) {
+          step = 2;
+          $('midHint').textContent = '👍 Верно! В слове «пчёлы» Ы стоит в конце.';
+          setTimeout(() => {
+            $('midTitle').textContent = 'А теперь найди овощ';
+            $('midHint').textContent = '👆 Нажми на овощ';
+            $('mid').querySelectorAll('.card').forEach(c => c.className = 'card');
+          }, 2200);
+        }
+      } else {
+        b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope');
+        $('midHint').textContent = 'В слове «пчёлы» Ы стоит в конце';
+      }
+    } else if (step === 2) {
+      if (t.veg) { b.classList.add('yes'); step = 3; $('midHint').textContent = '👍 Тыква — овощ. Все задания выполнены!'; }
+      else { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); }
+    }
+  };
+  $('mid').appendChild(b);
+});
+
+go(parseInt(location.hash.slice(1)) || 0);
+</script>
+</body>
+</html>

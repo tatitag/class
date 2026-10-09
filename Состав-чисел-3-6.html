@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Состав чисел 3–6</title>
+<style>
+  :root {
+    --paper: #fdfcf7;
+    --grid: #d5e3f3;
+    --ink: #1d2540;
+    --soft: #5b6480;
+    --blue: #2b55e0;
+    --red: #e5484d;
+    --green: #23a05a;
+    --yellow: #ffc93c;
+    --bg: #eef3fb;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  header { padding: 14px 16px 6px; display: flex; justify-content: center; }
+  .dots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .dots button {
+    width: 18px; height: 18px; border-radius: 50%; border: 3px solid #b9c6de;
+    background: #fff; padding: 0; cursor: pointer; transition: transform .15s;
+  }
+  .dots button.done { background: var(--blue); border-color: var(--blue); }
+  .dots button.now { background: var(--yellow); border-color: var(--ink); transform: scale(1.35); }
+
+  main { flex: 1; overflow-y: auto; padding: 8px 16px 16px; }
+  section { display: none; max-width: 820px; margin: 0 auto; text-align: center; }
+  section.on { display: block; animation: appear .35s ease-out; }
+  @keyframes appear { from { opacity: 0; transform: translateY(10px); } }
+
+  h1 { font-size: clamp(30px, 5.2vw, 52px); margin: 6px 0 8px; line-height: 1.1; }
+  h1 small { display: block; font-size: .45em; color: var(--soft); font-weight: 600; margin-bottom: 4px; }
+  p { font-size: clamp(21px, 3vw, 30px); line-height: 1.35; margin: 8px auto; max-width: 22em; }
+  p.task {
+    display: inline-block; background: #fff4cf; border-radius: 16px; padding: 8px 18px;
+    font-size: clamp(18px, 2.4vw, 24px);
+  }
+  .a { color: var(--blue); } .b { color: var(--red); }
+
+  .paper {
+    max-width: 720px; margin: 12px auto; border-radius: 18px; padding: 18px 12px;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, var(--grid) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+    box-shadow: 0 2px 0 #c9d6ea, 0 10px 24px rgba(40, 70, 140, .12);
+  }
+
+  .btn {
+    font: inherit; font-weight: 700; font-size: clamp(18px, 2.4vw, 24px);
+    border: 0; border-radius: 16px; padding: 12px 22px; margin: 4px; cursor: pointer;
+    background: #fff; color: var(--ink); box-shadow: 0 3px 0 #c3cfe4;
+  }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c3cfe4; }
+  .btn.main { background: var(--blue); color: #fff; box-shadow: 0 3px 0 #1a3aa8; }
+
+  /* выбор числа */
+  .tabs { display: flex; justify-content: center; gap: 8px; margin: 8px 0; }
+  .tabs .btn { width: 2.6em; padding: 10px 0; margin: 0; font-size: clamp(22px, 3vw, 30px); }
+  .tabs .btn.sel { background: var(--yellow); box-shadow: 0 3px 0 #c9971a; }
+
+  /* кружки */
+  .row { display: flex; justify-content: center; align-items: center; gap: clamp(6px, 1.4vw, 12px); flex-wrap: wrap; min-height: 84px; }
+  .ball {
+    width: clamp(44px, 9vw, 70px); aspect-ratio: 1; border-radius: 50%; border: 3px solid var(--ink);
+    background: var(--blue); padding: 0; transition: background .2s, margin .2s;
+  }
+  button.ball { cursor: pointer; }
+  .ball.b { background: var(--red); }
+  .ball.gap { margin-right: clamp(18px, 4vw, 40px); }
+  .ball.pop { animation: pop .3s ease-out; }
+  @keyframes pop { from { transform: scale(0); } }
+  .big { font-size: clamp(34px, 6.4vw, 60px); font-weight: 800; margin: 10px 0 0; line-height: 1.1; }
+  .box {
+    min-width: clamp(90px, 18vw, 150px); height: clamp(64px, 12vw, 96px); padding: 0 12px;
+    border-radius: 16px; border: 4px dashed var(--ink); background: #fff4cf;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: clamp(34px, 6vw, 54px); font-weight: 800;
+  }
+
+  /* домик */
+  .house { width: clamp(210px, 38vw, 270px); margin: 0 auto; }
+  .roof {
+    height: clamp(90px, 16vw, 120px); background: var(--red); clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;
+    color: #fff; font-size: clamp(44px, 8vw, 62px); font-weight: 800; line-height: 1;
+  }
+  .floors { background: #ffe2a3; border: 4px solid var(--ink); border-radius: 0 0 14px 14px; padding: 6px 10px; }
+  .floor { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0; }
+  .win {
+    background: #fff; border: 3px solid var(--ink); border-radius: 10px;
+    font-size: clamp(28px, 5vw, 40px); font-weight: 800; line-height: 1.35;
+  }
+  .win.q { background: #fff4cf; border-style: dashed; color: var(--soft); }
+  .floor.now .win.q { box-shadow: 0 0 0 5px var(--yellow); color: var(--ink); }
+
+  /* ответы */
+  .answers { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 6px; }
+  .answers .btn { width: 2.8em; padding: 12px 0; margin: 0; font-size: clamp(24px, 3.4vw, 34px); }
+  .answers .btn.yes { background: var(--green); color: #fff; box-shadow: 0 3px 0 #17733f; }
+  .answers .btn.no { animation: shake .35s; opacity: .4; }
+  @keyframes shake { 25% { translate: -7px 0; } 75% { translate: 7px 0; } }
+  .stars { font-size: clamp(24px, 4.4vw, 38px); letter-spacing: 3px; min-height: 1.4em; }
+
+  footer {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -2px 12px rgba(40, 70, 140, .1);
+  }
+  footer .btn { margin: 0; }
+  footer .btn.main { padding-left: 34px; padding-right: 34px; }
+  /* телефон */
+  body, button { touch-action: manipulation; }
+  @media (max-width: 560px) {
+    header { padding: 10px 12px 4px; }
+    .dots { gap: 6px; }
+    .dots button { width: 15px; height: 15px; border-width: 2px; }
+    main { padding: 6px 14px 14px; }
+    h1 { font-size: 30px; }
+    p { font-size: 20px; }
+    p.task { font-size: 17px; padding: 8px 14px; }
+    .paper { margin: 10px auto; border-radius: 14px; }
+    footer { padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); }
+    footer .btn { min-height: 52px; padding: 10px 16px; font-size: 20px; }
+    footer .btn.main { flex: 1; max-width: 220px; }
+    .tabs .btn { font-size: 24px; width: 3em; padding: 12px 0; }
+    .paper { padding: 14px 10px; }
+    .row { gap: 5px; min-height: 64px; }
+    .ball { width: 38px; }
+    .ball.gap { margin-right: 16px; }
+    #hideRow .ball { width: 34px; }
+    .box { min-width: 86px; height: 62px; font-size: 34px; gap: 6px; padding: 0 10px; }
+    .big { font-size: 34px; }
+    .house { width: 230px; }
+    /* пять ответов в один ряд */
+    .answers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; }
+    .answers .btn { width: auto; padding: 14px 0; font-size: 26px; }
+    .answers .btn.main { grid-column: 1 / -1; justify-self: center; font-size: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) { section.on, .pop, .no { animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header><div class="dots" id="dots"></div></header>
+
+<main id="main">
+
+  <!-- 1. Разложи число -->
+  <section>
+    <h1><small>Урок математики</small>Число из двух частей</h1>
+    <p>Любое число можно разложить на <b>две части</b>.</p>
+    <div class="tabs" id="splitTabs"></div>
+    <div class="paper">
+      <div class="row" id="splitRow"></div>
+      <div class="big" id="splitText"></div>
+    </div>
+    <p class="task">👆 Нажимай на кружки — дели число по-разному</p>
+  </section>
+
+  <!-- 2. Числовые домики -->
+  <section>
+    <h1>Числовой домик</h1>
+    <p>На крыше — число. На этаже — <b>две его части</b>.</p>
+    <div class="tabs" id="houseTabs"></div>
+    <div class="house"><div class="roof" id="houseRoof"></div><div class="floors" id="houseFloors"></div></div>
+    <p class="task" id="houseHint"></p>
+  </section>
+
+  <!-- 3. Засели домик -->
+  <section id="fill">
+    <h1><small>Задание 1</small>Засели домик</h1>
+    <div class="stars" id="fillStars"></div>
+    <div class="house"><div class="roof" id="fillRoof"></div><div class="floors" id="fillFloors"></div></div>
+    <p class="task" id="fillHint"></p>
+    <div class="answers" id="fillAnswers"></div>
+  </section>
+
+  <!-- 4. Сколько спряталось -->
+  <section id="hide">
+    <h1><small>Задание 2</small><span id="hideTitle"></span></h1>
+    <div class="stars" id="hideStars"></div>
+    <div class="paper"><div class="row" id="hideRow"></div></div>
+    <p class="task" id="hideHint"></p>
+    <div class="answers" id="hideAnswers"></div>
+  </section>
+
+  <!-- 5. Примеры -->
+  <section id="sum">
+    <h1><small>Задание 3</small>Какое число пропало?</h1>
+    <div class="stars" id="sumStars"></div>
+    <div class="paper"><div class="big" id="sumText" style="margin:6px 0"></div></div>
+    <p class="task" id="sumHint"></p>
+    <div class="answers" id="sumAnswers"></div>
+  </section>
+
+</main>
+
+<footer>
+  <button class="btn" id="prev">← Назад</button>
+  <button class="btn main" id="next">Дальше →</button>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const NUMS = [3, 4, 5, 6];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- навигация ---------- */
+const pages = [...document.querySelectorAll('main section')];
+const dots = $('dots');
+let cur = 0;
+pages.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.setAttribute('aria-label', 'Страница ' + (i + 1));
+  b.onclick = () => go(i);
+  dots.appendChild(b);
+});
+function go(i) {
+  cur = Math.max(0, Math.min(pages.length - 1, i));
+  pages.forEach((p, n) => p.classList.toggle('on', n === cur));
+  [...dots.children].forEach((d, n) => { d.className = n < cur ? 'done' : n === cur ? 'now' : ''; });
+  $('prev').style.visibility = cur ? 'visible' : 'hidden';
+  $('next').style.visibility = cur < pages.length - 1 ? 'visible' : 'hidden';
+  $('main').scrollTop = 0;
+  history.replaceState(null, '', '#' + cur);
+}
+$('prev').onclick = () => go(cur - 1);
+$('next').onclick = () => go(cur + 1);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(cur + 1);
+  if (e.key === 'ArrowLeft') go(cur - 1);
+});
+
+function tabs(box, onPick) {
+  NUMS.forEach(n => {
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = n;
+    b.onclick = () => { [...box.children].forEach(x => x.classList.toggle('sel', x === b)); onPick(n); };
+    box.appendChild(b);
+  });
+  box.children[0].click();
+}
+
+/* ---------- 1. разложи число ---------- */
+tabs($('splitTabs'), n => {
+  const row = $('splitRow');
+  const draw = k => {             // k кружков слева, остальные справа
+    row.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const b = document.createElement('button');
+      b.className = 'ball' + (i >= k ? ' b' : '') + (i === k - 1 ? ' gap' : '');
+      b.onclick = () => draw(Math.min(i + 1, n - 1));
+      row.appendChild(b);
+    }
+    $('splitText').innerHTML = n + ' — это <span class="a">' + k + '</span> и <span class="b">' + (n - k) + '</span>';
+  };
+  draw(1);
+});
+
+/* ---------- 2. числовой домик ---------- */
+tabs($('houseTabs'), n => {
+  $('houseRoof').textContent = n;
+  let h = '';
+  for (let a = 1; a < n; a++) h += '<div class="floor"><div class="win a">' + a + '</div><div class="win b">' + (n - a) + '</div></div>';
+  $('houseFloors').innerHTML = h;
+  $('houseHint').textContent = 'На каждом этаже вместе получается ' + n;
+});
+
+/* ---------- общие кнопки-ответы ---------- */
+function answers(box, right, onRight) {
+  let first = true;
+  box.innerHTML = '';
+  for (let v = 1; v <= 5; v++) {
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = v;
+    b.onclick = () => {
+      if (v === right) {
+        b.classList.add('yes');
+        [...box.children].forEach(x => x.disabled = true);
+        onRight(first);
+      } else { first = false; b.classList.add('no'); b.disabled = true; }
+    };
+    box.appendChild(b);
+  }
+}
+function again(box, fn) {
+  box.innerHTML = '';
+  const b = document.createElement('button'); b.className = 'btn main'; b.style.width = 'auto'; b.style.padding = '12px 22px';
+  b.textContent = 'Ещё раз'; b.onclick = fn; box.appendChild(b);
+}
+
+/* ---------- 3. засели домик ---------- */
+function fillStart() {
+  let hi = 0, stars = 0;
+  const house = () => {
+    const n = NUMS[hi];
+    // на каждом этаже прячем одно окошко: то левое, то правое
+    const floors = [...Array(n - 1)].map((_, i) => ({ a: i + 1, b: n - i - 1, hide: Math.random() < .5 ? 'a' : 'b', done: false }));
+    let fi = 0;
+    $('fillRoof').textContent = n;
+    const draw = () => {
+      $('fillFloors').innerHTML = floors.map((f, i) => {
+        const w = s => (f.hide === s && !f.done) ? '<div class="win q">?</div>' : '<div class="win ' + s + '">' + f[s] + '</div>';
+        return '<div class="floor' + (i === fi ? ' now' : '') + '">' + w('a') + w('b') + '</div>';
+      }).join('');
+      $('fillStars').textContent = '⭐'.repeat(stars);
+    };
+    const ask = () => {
+      draw();
+      if (fi >= floors.length) {
+        hi++;
+        if (hi < NUMS.length) { $('fillHint').textContent = '👍 Домик заселён! Идём к следующему…'; $('fillAnswers').innerHTML = ''; setTimeout(house, 1500); }
+        else { $('fillHint').textContent = '👍 Все четыре домика заселены!'; again($('fillAnswers'), fillStart); }
+        return;
+      }
+      const f = floors[fi], shown = f.hide === 'a' ? f.b : f.a;
+      $('fillHint').textContent = 'Вместе должно быть ' + n + '. Кто живёт рядом с числом ' + shown + '?';
+      answers($('fillAnswers'), f[f.hide], first => { if (first) stars++; f.done = true; fi++; setTimeout(ask, 700); });
+    };
+    ask();
+  };
+  house();
+}
+fillStart();
+
+/* ---------- задачи для заданий 2 и 3: все пары чисел 3–6 ---------- */
+function tasks(count) {
+  const all = [];
+  NUMS.forEach(n => { for (let a = 1; a < n; a++) all.push({ n, a, b: n - a }); });
+  return shuffle(all).slice(0, count);
+}
+function rounds(ids, count, show, doneText) {
+  const start = () => {
+    const list = tasks(count); let i = 0, stars = 0;
+    const next = () => {
+      $(ids.stars).textContent = '⭐'.repeat(stars);
+      if (i >= list.length) {
+        $(ids.hint).textContent = doneText + ' Звёздочек: ' + stars + ' из ' + count;
+        again($(ids.answers), start);
+        return;
+      }
+      const t = list[i];
+      show(t, false);
+      answers($(ids.answers), t.b, first => { if (first) stars++; show(t, true); i++; setTimeout(next, 1300); });
+    };
+    next();
+  };
+  start();
+}
+
+/* ---------- 4. сколько спряталось ---------- */
+rounds({ stars: 'hideStars', hint: 'hideHint', answers: 'hideAnswers' }, 6, (t, open) => {
+  const ball = c => '<div class="ball ' + c + '"></div>';
+  $('hideTitle').textContent = 'Всего ' + t.n + '. Сколько в коробке?';
+  $('hideRow').innerHTML = ball('').repeat(t.a) + '<div class="box">' + (open ? ball('b pop').repeat(t.b) : '?') + '</div>';
+  $('hideHint').innerHTML = open
+    ? t.n + ' — это <b class="a">' + t.a + '</b> и <b class="b">' + t.b + '</b>'
+    : 'Снаружи ' + t.a + '. Остальные спрятались в коробке';
+}, '👍 Все коробки открыты!');
+
+/* ---------- 5. примеры ---------- */
+rounds({ stars: 'sumStars', hint: 'sumHint', answers: 'sumAnswers' }, 8, (t, open) => {
+  $('sumText').innerHTML = '<span class="a">' + t.a + '</span> + <span class="b">' + (open ? t.b : '?') + '</span> = ' + t.n;
+  $('sumHint').textContent = open ? 'Верно!' : 'Вспомни домик числа ' + t.n;
+}, '⭐ Урок пройден!');
+
+go(parseInt(location.hash.slice(1)) || 0);
+</script>
+</body>
+</html>
